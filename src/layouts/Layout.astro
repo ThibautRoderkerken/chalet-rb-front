@@ -1,22 +1,58 @@
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro Basics</title>
-	</head>
-	<body>
-		<slot />
-	</body>
-</html>
+---
+import "../styles/global.css";
 
-<style>
-	html,
-	body {
-		margin: 0;
-		width: 100%;
-		height: 100%;
-	}
-</style>
+interface Props {
+	title?: string;
+	description?: string;
+}
+const { title = "R&B's Chalet", description = "Séjour détente dans les Ardennes" } = Astro.props as Props;
+---
+
+<html lang="fr" class="scroll-smooth">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>{title}</title>
+	<meta name="description" content={description} />
+	<link rel="icon" href="/favicon.ico" />
+</head>
+<body class="antialiased text-gray-900">
+<!-- NAV FLOTTANTE (overlay) -->
+<header class="fixed inset-x-0 top-4 z-50 pointer-events-none">
+	<nav class="mx-auto max-w-6xl px-4 pointer-events-auto">
+		<div class="flex items-center justify-between rounded-2xl px-4 py-3
+                    bg-black/55 text-white backdrop-blur shadow-lg ring-1 ring-white/15">
+			<a href="/" class="font-semibold tracking-tight">R&B's Chalet</a>
+			<ul class="hidden md:flex items-center gap-6">
+				<li><a href="/" class="hover:opacity-80">Accueil</a></li>
+				<li><a href="/galerie" class="hover:opacity-80">Galerie</a></li>
+				<li><a href="/tarifs" class="hover:opacity-80">Tarifs</a></li>
+				<li><a href="/contact" class="hover:opacity-80">Contact</a></li>
+			</ul>
+			<a href="/#disponibilites"
+			   class="hidden md:inline-flex bg-white text-black text-sm px-4 py-2 rounded-xl hover:opacity-90">
+				Voir disponibilités
+			</a>
+		</div>
+	</nav>
+</header>
+
+<!-- Pas de padding-top: la nav flotte au-dessus -->
+<main>
+	<slot />
+</main>
+
+<footer class="mt-20 border-t border-gray-100">
+	<div class="max-w-6xl mx-auto px-4 py-10 text-sm text-gray-600">
+		<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+			<p>© {new Date().getFullYear()} R&B's Chalet. Tous droits réservés.</p>
+			<nav class="flex items-center gap-4">
+				<a href="/galerie" class="hover:text-gray-900">Galerie</a>
+				<a href="/tarifs" class="hover:text-gray-900">Tarifs</a>
+				<a href="/contact" class="hover:text-gray-900">Contact</a>
+			</nav>
+		</div>
+	</div>
+</footer>
+</body>
+</html>

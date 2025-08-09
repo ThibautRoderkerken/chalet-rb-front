@@ -1,0 +1,50 @@
+---
+import 'photoswipe/style.css';
+
+type Img = { src: string; w: number; h: number; alt: string };
+
+const images: Img[] = [
+{ src: '/images/Jacuzzi/Jacuzzi-01.jpg', w: 1600, h: 1067, alt: 'Jacuzzi privé' },
+{ src: '/images/Billard/Billard-1.jpg', w: 1600, h: 1067, alt: 'Salle de billard' },
+{ src: '/images/Chambre/Chambre-1.jpg', w: 1600, h: 1067, alt: 'Chambre' },
+{ src: '/images/Cuisine/Cuisine-1.jpg', w: 1600, h: 1067, alt: 'Cuisine équipée' },
+{ src: '/images/Salon/Salon-01.jpg', w: 1600, h: 1067, alt: 'Salon' },
+{ src: '/images/SDB/SDB-1.jpg', w: 1600, h: 1067, alt: 'Salle de bain' },
+{ src: '/images/Terrasse/Terrasse-01.jpg', w: 1600, h: 1067, alt: 'Terrasse' },
+{ src: '/images/TV/TV-1.jpg', w: 1600, h: 1067, alt: 'Espace TV' },
+];
+---
+
+<div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3" id="home-gallery">
+{images.map((img) => (
+<a
+        href={img.src}
+        data-pswp-width={img.w}
+        data-pswp-height={img.h}
+        target="_blank"
+        rel="noreferrer"
+        class="group relative block overflow-hidden rounded-xl"
+>
+    <img
+            src={img.src}
+            alt={img.alt}
+            loading="lazy"
+            class="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+    />
+    <div class="pointer-events-none absolute inset-0 bg-black/0 group-hover:bg-black/10 transition"></div>
+</a>
+))}
+</div>
+
+<script is:raw>
+import PhotoSwipeLightbox from 'photoswipe/lightbox';
+import 'photoswipe/style.css';
+
+const lightbox = new PhotoSwipeLightbox({
+    gallery: '#home-gallery',
+    children: 'a',
+    pswpModule: () => import('photoswipe'),
+    wheelToZoom: true
+});
+lightbox.init();
+</script>

@@ -1,0 +1,150 @@
+---
+import BaseLayout from "../layouts/Layout.astro";
+import AvailabilityWidget from "../components/AvailabilityWidget.vue";
+import CalendarAvailability from "../components/CalendarAvailability.vue";
+
+/** Cartes de prix (semaine + week-end) */
+type PriceCard = {
+	title: string;
+	desc?: string;
+	week: number;
+	weekend: number;
+	icon?: string;
+	variant?: "default" | "highlight";
+};
+const priceCards: PriceCard[] = [
+	{ title: "Haute Saison", desc: "Vacances d'été & jours fériés", week: 205, weekend: 400, icon: "☀️" },
+	{ title: "Basse Saison", desc: "Hors vacances & jours fériés", week: 180, weekend: 345, icon: "❄️" },
+	{ title: "Spécial Noël & Nouvel An", desc: "Fêtes de fin d’année", week: 250, weekend: 500, icon: "🎄", variant: "highlight" },
+];
+
+const fmt = (n:number) =>
+	new Intl.NumberFormat("fr-BE", { style: "currency", currency: "EUR", minimumFractionDigits: 2 }).format(n);
+---
+
+<BaseLayout title="Tarifs – R&B's Chalet" description="Consultez les tarifs et la disponibilité du chalet.">
+	<!-- HERO COURT -->
+	<section class="relative" id="top">
+		<div id="hero-sentinel" class="absolute inset-x-0 top-0 h-24"></div>
+		<div class="h-[36vh] min-h-[260px] bg-center bg-cover" style="background-image:url('/images/hero.jpg')"></div>
+		<div class="absolute inset-0 bg-black/40"></div>
+
+		<div class="absolute inset-x-0 bottom-0">
+			<div class="max-w-6xl mx-auto px-4 pb-7">
+				<h1 class="text-3xl md:text-4xl font-bold text-white drop-shadow">Tarifs & disponibilités</h1>
+				<p class="text-white/90 mt-1">Vérifiez en direct les prix selon vos dates.</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- CONTENU PRINCIPAL -->
+	<section class="py-12 md:py-16">
+		<div class="max-w-6xl mx-auto px-4 grid md:grid-cols-12 gap-8 lg:gap-10 items-start">
+			<!-- Colonne gauche -->
+			<div class="md:col-span-8 space-y-8">
+
+				<!-- Cartes tarifs -->
+				<div class="space-y-5">
+					<h2 class="text-2xl font-semibold">Tarifs indicatifs</h2>
+					<div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+						{priceCards.map((c) => (
+							<div class={"rounded-2xl p-5 flex flex-col shadow-sm ring-1 " + (c.variant === "highlight" ? "bg-[linear-gradient(135deg,#ffe0c1,#ffd5db)] ring-transparent" : "bg-white ring-gray-200")}>
+								<div class="flex flex-col items-center text-center mb-3">
+									{c.icon && <div class="text-4xl mb-2">{c.icon}</div>}
+									<h3 class="text-lg font-semibold tracking-wide">{c.title}</h3>
+									{c.desc && <p class="text-sm text-gray-600 mt-1">{c.desc}</p>}
+								</div>
+								<div class="mt-2 space-y-4 font-mono">
+									<div><div class="text-gray-700">Prix semaine :</div><div><span class="font-semibold">{fmt(c.week)}</span> <span class="text-gray-500">/ nuit</span></div></div>
+									<div><div class="text-gray-700">Prix week‑end :</div><div><span class="font-semibold">{fmt(c.weekend)}</span> <span class="text-gray-500">/ nuit</span></div></div>
+								</div>
+								<div class="mt-auto pt-5">
+									<a href="/#disponibilites" class="inline-flex w-full justify-center px-4 py-2.5 rounded-xl bg-black text-white hover:opacity-90">Voir disponibilités</a>
+								</div>
+							</div>
+						))}
+					</div>
+					<p class="text-xs text-gray-500">* Tarifs indicatifs par nuit. Le calcul exact dépend des dates, de la durée et de la demande.</p>
+				</div>
+
+				<!-- Calendrier -->
+				<CalendarAvailability client:load />
+
+				<!-- Calculateur (API) -->
+				<div class="rounded-2xl border border-gray-200 bg-white p-6">
+					<h2 class="text-2xl font-semibold mb-4">Calculateur de séjour</h2>
+					<AvailabilityWidget client:load />
+					<p class="mt-3 text-xs text-gray-500">* En développement local, les données sont simulées. En ligne, les tarifs proviendront de l’API.</p>
+				</div>
+
+				<!-- Infos pratiques -->
+				<div class="rounded-2xl bg-gray-50 p-6">
+					<div class="grid md:grid-cols-3 gap-8">
+						<div class="md:col-span-1">
+							<h3 class="text-xl font-semibold">Informations pratiques</h3>
+							<p class="text-gray-600 mt-2">Ces éléments peuvent être adaptés une fois les règles finalisées.</p>
+						</div>
+						<div class="md:col-span-2 grid gap-4">
+							<details class="rounded-xl bg-white p-5 border border-gray-200" open>
+								<summary class="cursor-pointer font-medium">Séjour minimum & arrivée</summary>
+								<div class="mt-3 text-gray-700 text-sm leading-relaxed">
+									Séjour minimum selon période (ex. 2 nuits en semaine, 3 nuits week‑end/jours fériés).
+									Arrivée entre <span class="font-medium">16:00</span> et <span class="font-medium">20:00</span>, départ avant <span class="font-medium">11:00</span>.
+								</div>
+							</details>
+
+							<details class="rounded-xl bg-white p-5 border border-gray-200">
+								<summary class="cursor-pointer font-medium">Caution & frais</summary>
+								<div class="mt-3 text-gray-700 text-sm leading-relaxed">
+									Caution restituée après état des lieux. Frais de ménage et taxe de séjour peuvent s’appliquer selon la période.
+								</div>
+							</details>
+
+							<details class="rounded-xl bg-white p-5 border border-gray-200">
+								<summary class="cursor-pointer font-medium">Règles du chalet</summary>
+								<div class="mt-3 text-gray-700 text-sm leading-relaxed">
+									Non‑fumeur à l’intérieur, pas de fêtes bruyantes, respect du voisinage et des horaires du jacuzzi.
+									<br/>Les règlements PDF (FR/NL/DE/EN) seront ajoutés ici.
+								</div>
+							</details>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Sidebar droite -->
+			<aside class="md:col-span-4 space-y-6 md:sticky md:top-28">
+				<div class="rounded-2xl border border-gray-200 bg-white p-6">
+					<h3 class="font-semibold mb-3">Besoin d’aide ?</h3>
+					<ul class="text-sm text-gray-700 space-y-1">
+						<li>📞 <a class="underline" href="tel:+32472338733">+32 472 33 87 33</a></li>
+						<li>✉️ <a class="underline" href="mailto:contact@chalet-rb.be">contact@chalet-rb.be</a></li>
+					</ul>
+					<a href="/contact" class="mt-4 inline-flex w-full justify-center bg-black text-white px-4 py-2 rounded-xl hover:opacity-90">
+						Nous contacter
+					</a>
+				</div>
+
+				<div class="rounded-2xl border border-gray-200 bg-white p-6">
+					<h3 class="font-semibold mb-3">Bon à savoir</h3>
+					<ul class="text-sm text-gray-700 space-y-2">
+						<li class="flex items-start gap-2"><span>✅</span><span>Meilleur tarif en direct</span></li>
+						<li class="flex items-start gap-2"><span>🏷️</span><span>Prix variables selon la période</span></li>
+						<li class="flex items-start gap-2"><span>🧾</span><span>Taxes/frais affichés à la fin</span></li>
+					</ul>
+				</div>
+			</aside>
+		</div>
+	</section>
+
+	<!-- CTA BAS DE PAGE -->
+	<section class="py-12">
+		<div class="max-w-4xl mx-auto px-4 text-center">
+			<h2 class="text-2xl md:text-3xl font-bold">Prêts à réserver votre séjour ?</h2>
+			<p class="text-gray-600 mt-2">Choisissez vos dates et consultez immédiatement la disponibilité.</p>
+			<a href="/#disponibilites" class="mt-6 inline-flex bg-black text-white px-6 py-3 rounded-2xl hover:opacity-90">
+				Voir les disponibilités
+			</a>
+		</div>
+	</section>
+</BaseLayout>

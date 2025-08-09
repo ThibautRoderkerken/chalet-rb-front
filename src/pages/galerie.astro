@@ -1,0 +1,140 @@
+---
+import BaseLayout from "../layouts/Layout.astro";
+import 'photoswipe/style.css';
+
+type Img = { src: string; w: number; h: number; alt: string };
+
+const sections: { title: string; id: string; images: Img[] }[] = [
+	{
+		title: "Jacuzzi",
+		id: "jacuzzi",
+		images: [
+			{ src: '/images/Jacuzzi/Jacuzzi-01.jpg', w: 1600, h: 1067, alt: 'Jacuzzi 01' },
+			{ src: '/images/Jacuzzi/Jacuzzi-02.jpg', w: 1600, h: 1067, alt: 'Jacuzzi 02' },
+			{ src: '/images/Jacuzzi/Jacuzzi-03.jpg', w: 1600, h: 1067, alt: 'Jacuzzi 03' },
+			{ src: '/images/Jacuzzi/Jacuzzi-04.jpg', w: 1600, h: 1067, alt: 'Jacuzzi 04' },
+			{ src: '/images/Jacuzzi/Jacuzzi-05.jpg', w: 1600, h: 1067, alt: 'Jacuzzi 05' },
+			{ src: '/images/Jacuzzi/Jacuzzi-06.jpg', w: 1600, h: 1067, alt: 'Jacuzzi 06' },
+		],
+	},
+	{
+		title: "Billard",
+		id: "billard",
+		images: [
+			{ src: '/images/Billard/Billard-1.jpg', w: 1600, h: 1067, alt: 'Billard 1' },
+			{ src: '/images/Billard/billard-2.jpg', w: 1600, h: 1067, alt: 'Billard 2' },
+			{ src: '/images/Billard/billard-3.jpg', w: 1600, h: 1067, alt: 'Billard 3' },
+			{ src: '/images/Billard/billard-4.jpg', w: 1600, h: 1067, alt: 'Billard 4' },
+		],
+	},
+	{
+		title: "Chambres",
+		id: "chambres",
+		images: [
+			{ src: '/images/Chambre/Chambre-1.jpg', w: 1600, h: 1067, alt: 'Chambre 1' },
+			{ src: '/images/Chambre/Chambre-2.jpg', w: 1600, h: 1067, alt: 'Chambre 2' },
+			{ src: '/images/Chambre/Chambre-3.jpg', w: 1600, h: 1067, alt: 'Chambre 3' },
+			{ src: '/images/Chambre/Chambre-4.jpg', w: 1600, h: 1067, alt: 'Chambre 4' },
+		],
+	},
+	{
+		title: "Cuisine",
+		id: "cuisine",
+		images: [
+			{ src: '/images/Cuisine/Cuisine-1.jpg', w: 1600, h: 1067, alt: 'Cuisine 1' },
+			{ src: '/images/Cuisine/Cuisine-2.jpg', w: 1600, h: 1067, alt: 'Cuisine 2' },
+			{ src: '/images/Cuisine/Cuisine-3.jpg', w: 1600, h: 1067, alt: 'Cuisine 3' },
+			{ src: '/images/Cuisine/Cuisine-4.jpg', w: 1600, h: 1067, alt: 'Cuisine 4' },
+		],
+	},
+	{
+		title: "Salon",
+		id: "salon",
+		images: [
+			{ src: '/images/Salon/Salon-01.jpg', w: 1600, h: 1067, alt: 'Salon 01' },
+		],
+	},
+	{
+		title: "Salle de bain",
+		id: "sdb",
+		images: [
+			{ src: '/images/SDB/SDB-1.jpg', w: 1600, h: 1067, alt: 'SDB 1' },
+			{ src: '/images/SDB/SDB-2.jpg', w: 1600, h: 1067, alt: 'SDB 2' },
+			{ src: '/images/SDB/SDB-3.jpg', w: 1600, h: 1067, alt: 'SDB 3' },
+		],
+	},
+	{
+		title: "Terrasse",
+		id: "terrasse",
+		images: [
+			{ src: '/images/Terrasse/Terrasse-01.jpg', w: 1600, h: 1067, alt: 'Terrasse 01' },
+			{ src: '/images/Terrasse/Terrasse-02.jpg', w: 1600, h: 1067, alt: 'Terrasse 02' },
+		],
+	},
+	{
+		title: "TV",
+		id: "tv",
+		images: [
+			{ src: '/images/TV/TV-1.jpg', w: 1600, h: 1067, alt: 'TV' },
+		],
+	},
+];
+---
+
+<BaseLayout title="Galerie – R&B's Chalet" description="Photos du chalet : jacuzzi, billard, chambres, cuisine, salon, terrasse…">
+	<section class="mt-25">
+		<div class="max-w-6xl mx-auto px-4 mt-5">
+			<h1 class="text-3xl md:text-4xl font-bold mb-2">Galerie</h1>
+			<p class="text-gray-600">Découvrez les espaces du chalet en images.</p>
+		</div>
+	</section>
+
+	<section class="py-10">
+		<div class="max-w-6xl mx-auto px-4 space-y-16">
+			{sections.map((sec, idx) => (
+				<div id={sec.id}>
+					<div class="flex items-end justify-between gap-6 mb-6">
+						<h2 class="text-2xl md:text-3xl font-semibold">{sec.title}</h2>
+						<a href="#top" class="text-sm underline hidden md:inline">Haut de page</a>
+					</div>
+
+					<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3" id={`gal-${sec.id}`}>
+						{sec.images.map((img) => (
+							<a
+								href={img.src}
+								data-pswp-width={img.w}
+								data-pswp-height={img.h}
+								target="_blank"
+								rel="noreferrer"
+								class="group relative block overflow-hidden rounded-xl"
+							>
+								<img
+									src={img.src}
+									alt={img.alt}
+									loading="lazy"
+									class="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-[1.03]"
+								/>
+								<div class="pointer-events-none absolute inset-0 bg-black/0 group-hover:bg-black/10 transition"></div>
+							</a>
+						))}
+					</div>
+				</div>
+			))}
+		</div>
+	</section>
+
+	<script is:raw>
+		import PhotoSwipeLightbox from 'photoswipe/lightbox';
+		import 'photoswipe/style.css';
+
+		// initialiser un lightbox par section
+		{sections.map((sec) => (
+			`new PhotoSwipeLightbox({
+          gallery: '#gal-${sec.id}',
+          children: 'a',
+          pswpModule: () => import('photoswipe'),
+          wheelToZoom: true
+        }).init();`
+		)).join('')}
+	</script>
+</BaseLayout>
