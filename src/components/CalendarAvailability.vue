@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue';
+<script lang="ts" setup>
+import {ref, computed, onMounted, watch} from 'vue';
 
 type DayStatus = 'free' | 'booked' | 'arrival' | 'departure';
 
@@ -18,14 +18,29 @@ const isDev = import.meta.env.DEV;
 
 const cursor = ref(new Date());
 const loading = ref(false);
-const error = ref<string|null>(null);
+const error = ref<string | null>(null);
 const bookedRanges = ref<Range[]>([]);
 
-function ymd(d: Date) { return d.toISOString().slice(0,10); }
-function startOfMonth(d: Date) { return new Date(d.getFullYear(), d.getMonth(), 1); }
-function endOfMonth(d: Date) { return new Date(d.getFullYear(), d.getMonth() + 1, 0); }
-function addMonths(d: Date, n: number) { return new Date(d.getFullYear(), d.getMonth() + n, 1); }
-function weekdayMondayFirst(d: Date) { const w = d.getDay(); return (w + 6) % 7; }
+function ymd(d: Date) {
+    return d.toISOString().slice(0, 10);
+}
+
+function startOfMonth(d: Date) {
+    return new Date(d.getFullYear(), d.getMonth(), 1);
+}
+
+function endOfMonth(d: Date) {
+    return new Date(d.getFullYear(), d.getMonth() + 1, 0);
+}
+
+function addMonths(d: Date, n: number) {
+    return new Date(d.getFullYear(), d.getMonth() + n, 1);
+}
+
+function weekdayMondayFirst(d: Date) {
+    const w = d.getDay();
+    return (w + 6) % 7;
+}
 
 function buildBookedSet(ranges: Range[]): Set<string> {
     const s = new Set<string>();
@@ -45,15 +60,18 @@ async function fetchMonth() {
     bookedRanges.value = [];
     try {
         const first = startOfMonth(cursor.value);
-        const last  = endOfMonth(cursor.value);
+        const last = endOfMonth(cursor.value);
         const from = ymd(first);
-        const to   = ymd(last);
+        const to = ymd(last);
 
         if (isDev) {
             await new Promise(r => setTimeout(r, 150));
             const y = first.getFullYear(), m = first.getMonth();
-            const mk = (d1: number, d2: number): Range => ({ from: ymd(new Date(y, m, d1)), to: ymd(new Date(y, m, d2)) });
-            bookedRanges.value = [ mk(6,7), mk(16,17), mk(26,27), mk(5,6) ];
+            const mk = (d1: number, d2: number): Range => ({
+                from: ymd(new Date(y, m, d1)),
+                to: ymd(new Date(y, m, d2))
+            });
+            bookedRanges.value = [mk(6, 7), mk(16, 17), mk(26, 27), mk(5, 6)];
         } else {
             const url = `${apiBase}/availability/range?from=${from}&to=${to}`;
             const res = await fetch(url);
@@ -67,18 +85,27 @@ async function fetchMonth() {
                 const out: Range[] = [];
                 let s: string | null = null, prev: string | null = null;
                 for (const dt of busy) {
-                    if (!s) { s = dt; prev = dt; continue; }
-                    const nxt = new Date(prev!); nxt.setDate(nxt.getDate() + 1);
+                    if (!s) {
+                        s = dt;
+                        prev = dt;
+                        continue;
+                    }
+                    const nxt = new Date(prev!);
+                    nxt.setDate(nxt.getDate() + 1);
                     if (ymd(nxt) === dt) prev = dt;
-                    else { out.push({ from: s, to: prev! }); s = dt; prev = dt; }
+                    else {
+                        out.push({from: s, to: prev!});
+                        s = dt;
+                        prev = dt;
+                    }
                 }
-                if (s) out.push({ from: s, to: prev! });
+                if (s) out.push({from: s, to: prev!});
                 bookedRanges.value = out;
             } else {
                 bookedRanges.value = [];
             }
         }
-    } catch (e:any) {
+    } catch (e: any) {
         error.value = e.message ?? 'Erreur inconnue';
     } finally {
         loading.value = false;
@@ -86,13 +113,14 @@ async function fetchMonth() {
 }
 
 const monthLabel = computed(() =>
-        cursor.value.toLocaleDateString('fr-BE', { month: 'long', year: 'numeric' })
+        cursor.value.toLocaleDateString('fr-BE', {month: 'long', year: 'numeric'})
 );
 
 const weeks = computed<DayCell[][]>(() => {
     const first = startOfMonth(cursor.value);
-    const last  = endOfMonth(cursor.value);
-    const today = new Date(); today.setHours(0,0,0,0);
+    const last = endOfMonth(cursor.value);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const before = weekdayMondayFirst(first);
 
     const busy = buildBookedSet(bookedRanges.value);
@@ -100,8 +128,10 @@ const weeks = computed<DayCell[][]>(() => {
     function statusFor(dateISO: string): DayStatus {
         if (busy.has(dateISO)) return 'booked';
         const d = new Date(dateISO);
-        const prev = new Date(d); prev.setDate(prev.getDate() - 1);
-        const next = new Date(d); next.setDate(next.getDate() + 1);
+        const prev = new Date(d);
+        prev.setDate(prev.getDate() - 1);
+        const next = new Date(d);
+        next.setDate(next.getDate() + 1);
         const prevBusy = busy.has(ymd(prev));
         const nextBusy = busy.has(ymd(next));
 
@@ -113,27 +143,35 @@ const weeks = computed<DayCell[][]>(() => {
 
     const cells: DayCell[] = [];
     for (let i = before; i > 0; i--) {
-        const d = new Date(first); d.setDate(first.getDate() - i);
+        const d = new Date(first);
+        d.setDate(first.getDate() - i);
         const iso = ymd(d);
-        cells.push({ date: iso, day: d.getDate(), inMonth: false, isPast: d < today, status: statusFor(iso) });
+        cells.push({date: iso, day: d.getDate(), inMonth: false, isPast: d < today, status: statusFor(iso)});
     }
     for (let day = 1; day <= last.getDate(); day++) {
-        const d = new Date(first); d.setDate(day);
+        const d = new Date(first);
+        d.setDate(day);
         const iso = ymd(d);
-        cells.push({ date: iso, day, inMonth: true, isPast: d < today, status: statusFor(iso) });
+        cells.push({date: iso, day, inMonth: true, isPast: d < today, status: statusFor(iso)});
     }
     while (cells.length < 42) {
-        const d = new Date(last); d.setDate(last.getDate() + (cells.length - (before + last.getDate())) + 1);
+        const d = new Date(last);
+        d.setDate(last.getDate() + (cells.length - (before + last.getDate())) + 1);
         const iso = ymd(d);
-        cells.push({ date: iso, day: d.getDate(), inMonth: false, isPast: d < today, status: statusFor(iso) });
+        cells.push({date: iso, day: d.getDate(), inMonth: false, isPast: d < today, status: statusFor(iso)});
     }
     const out: DayCell[][] = [];
-    for (let i = 0; i < 42; i += 7) out.push(cells.slice(i, i+7));
+    for (let i = 0; i < 42; i += 7) out.push(cells.slice(i, i + 7));
     return out;
 });
 
-function prevMonth() { cursor.value = addMonths(cursor.value, -1); }
-function nextMonth() { cursor.value = addMonths(cursor.value, +1); }
+function prevMonth() {
+    cursor.value = addMonths(cursor.value, -1);
+}
+
+function nextMonth() {
+    cursor.value = addMonths(cursor.value, +1);
+}
 
 onMounted(fetchMonth);
 watch(cursor, fetchMonth);
@@ -144,17 +182,22 @@ watch(cursor, fetchMonth);
         <div class="flex items-center justify-between mb-3">
             <h3 class="text-lg font-semibold">Calendrier des disponibilités</h3>
             <div class="flex items-center gap-2">
-                <button @click="prevMonth" class="px-2 py-1 rounded-lg ring-1 ring-gray-300 hover:bg-gray-50">‹</button>
+                <button class="px-2 py-1 rounded-lg ring-1 ring-gray-300 hover:bg-gray-50" @click="prevMonth">‹</button>
                 <div class="min-w-[10ch] text-center font-medium capitalize">{{ monthLabel }}</div>
-                <button @click="nextMonth" class="px-2 py-1 rounded-lg ring-1 ring-gray-300 hover:bg-gray-50">›</button>
+                <button class="px-2 py-1 rounded-lg ring-1 ring-gray-300 hover:bg-gray-50" @click="nextMonth">›</button>
             </div>
         </div>
 
         <div v-if="error" class="text-red-600 text-sm mb-2">{{ error }}</div>
 
         <div class="grid grid-cols-7 text-xs text-gray-500 mb-1">
-            <div class="text-center py-1">L</div><div class="text-center py-1">M</div><div class="text-center py-1">M</div>
-            <div class="text-center py-1">J</div><div class="text-center py-1">V</div><div class="text-center py-1">S</div><div class="text-center py-1">D</div>
+            <div class="text-center py-1">L</div>
+            <div class="text-center py-1">M</div>
+            <div class="text-center py-1">M</div>
+            <div class="text-center py-1">J</div>
+            <div class="text-center py-1">V</div>
+            <div class="text-center py-1">S</div>
+            <div class="text-center py-1">D</div>
         </div>
 
         <div v-if="loading" class="h-64 grid place-items-center text-gray-500">Chargement…</div>
@@ -163,7 +206,6 @@ watch(cursor, fetchMonth);
             <template v-for="(week, wi) in weeks" :key="wi">
                 <template v-for="day in week" :key="day.date">
                     <div
-                            class="aspect-square rounded-xl border text-sm grid place-items-center relative"
                             :class="[ day.inMonth ? 'bg-white' : 'bg-gray-50 text-gray-400' ]"
                             :style="day.status === 'booked'
               ? 'background: rgba(16,185,129,.85); border-color: rgba(16,185,129,1); color:#fff;'
@@ -178,6 +220,7 @@ watch(cursor, fetchMonth);
               day.status==='departure' ? 'départ possible' :
               'libre'
             )"
+                            class="aspect-square rounded-xl border text-sm grid place-items-center relative"
                     >
                         {{ day.day }}
                     </div>
@@ -190,7 +233,8 @@ watch(cursor, fetchMonth);
                 <span class="inline-block w-3 h-3 rounded border border-gray-300 bg-white"></span> Libre
             </div>
             <div class="flex items-center gap-1">
-                <span class="inline-block w-3 h-3 rounded border border-emerald-700" style="background: rgba(16,185,129,.85)"></span> Occupé
+                <span class="inline-block w-3 h-3 rounded border border-emerald-700"
+                      style="background: rgba(16,185,129,.85)"></span> Occupé
             </div>
             <div class="flex items-center gap-1">
         <span class="inline-block w-3 h-3 rounded border border-emerald-700"
